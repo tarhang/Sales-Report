@@ -10,5 +10,5 @@ class SalesReport(object):
         self.data = pd.read_csv(self.transactions_file)
 
 
-if __name__ == "__mcleaain__":
+if __name__ == "__main__":
     r1 = SalesReport(2019, 'tirgan')
