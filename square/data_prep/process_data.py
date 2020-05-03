@@ -7,7 +7,7 @@ from square.utils.path_utils.data_path_builder import DataPathBuilder
 
 
 class DataLoader(object):
-    def __init__(self, year, event):
+    def __init__(self, year: int, event: str):
         self._path_builder = DataPathBuilder()
         self._transactions_file_path = self._path_builder.get_transactions_file_path(year, event)
         self._transactions = pd.read_csv(self._transactions_file_path)
@@ -15,11 +15,11 @@ class DataLoader(object):
         self.__format_data()
 
     def __format_data(self):
-        def date_formatter(d):
+        def date_formatter(d: str):
             d = d.split("/")
             return date(int('20' + d[2]), int(d[0]), int(d[1]))
 
-        def time_formatter(t):
+        def time_formatter(t: str):
             t = t.split(":")
             return time(int(t[0]), int(t[1]), int(t[2]))
 
@@ -47,9 +47,31 @@ class DataLoader(object):
             self.data[new_c[0]] = self._transactions[old_c].apply(new_c[1])
         self.data["date_time"] = np.vectorize(datetime.combine)(self.data["date"], self.data["time"])
         cols = self.data.columns.tolist()
-        cols = [cols[-1]] + cols[2:-1]
+        cols = [cols[-1]] + cols[:-1]
         self.data = self.data[cols]
+
+    def get_sales_on_date(self, calendar_day: datetime.date):
+        return self.data.iloc[(self.data["date"] == calendar_day).to_list()]
+
+    def get_festival_dates(self):
+        days = self.data["date"].unique()
+        days.sort()
+        return days
+
+    def get_festival_start_date(self):
+        return self.get_festival_dates()[0]
+
+    def get_festival_end_date(self):
+        return self.get_festival_dates()[-1]
+
+    def get_sales_in_hour(self, hour: int):
+        rows = self.data["time"].apply(lambda x: x.hour)
+        return self.data.iloc[rows.to_numpy() == hour]
 
 
 if __name__ == "__main__":
     r1 = DataLoader(2019, 'tirgan')
+    d = datetime(2019, 7, 27, 12)
+    print(r1.get_festival_dates())
+    print()
+    print(r1.get_sales_in_hour(d.time().hour))
