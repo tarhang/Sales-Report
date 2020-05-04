@@ -50,9 +50,6 @@ class DataLoader(object):
         cols = [cols[-1]] + cols[:-1]
         self.data = self.data[cols]
 
-    def get_sales_on_date(self, calendar_day: datetime.date):
-        return self.data.iloc[(self.data["date"] == calendar_day).to_list()]
-
     def get_festival_dates(self):
         days = self.data["date"].unique()
         days.sort()
@@ -64,14 +61,9 @@ class DataLoader(object):
     def get_festival_end_date(self):
         return self.get_festival_dates()[-1]
 
+    def get_sales_on_date(self, calendar_day: datetime.date):
+        return self.data.loc[self.data["date"] == calendar_day]
+
     def get_sales_in_hour(self, hour: int):
         rows = self.data["time"].apply(lambda x: x.hour)
         return self.data.iloc[rows.to_numpy() == hour]
-
-
-if __name__ == "__main__":
-    r1 = DataLoader(2019, 'tirgan')
-    d = datetime(2019, 7, 27, 12)
-    print(r1.get_festival_dates())
-    print()
-    print(r1.get_sales_in_hour(d.time().hour))
