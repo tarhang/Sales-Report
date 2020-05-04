@@ -1,0 +1,7 @@
+# folders
+data
+venv
+.idea
+.vscode
+.code
+__pycache__
